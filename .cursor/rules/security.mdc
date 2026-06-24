@@ -1,0 +1,56 @@
+---
+description: Regras de segurança para o Walletflow (backend sem autenticação)
+alwaysApply: true
+---
+
+# Walletflow — Segurança
+
+## Sem autenticação JWT
+
+Este projeto **não tem autenticação**. Use **apenas** `spring-security-crypto` para BCrypt:
+
+```java
+// CORRETO
+implementation 'org.springframework.security:spring-security-crypto'
+
+// PROIBIDO — ativa filter chain e bloqueia endpoints
+// spring-boot-starter-security
+```
+
+## Senhas
+
+```java
+private final PasswordEncoder encoder = new BCryptPasswordEncoder();
+String hashed = encoder.encode(rawPassword);
+```
+
+Nunca armazene ou logue senha em texto plano.
+
+## Validação de entrada
+
+Toda entrada validada via Jakarta Bean Validation antes de chegar ao service. `Document.of()` valida dígito verificador de CPF/CNPJ — não apenas tamanho.
+
+## SQL e JPA
+
+- Spring Data JPA com parâmetros nomeados — nunca concatenação de strings.
+- Migrations são arquivos `.sql` estáticos — nunca SQL dinâmico.
+
+## Logs seguros
+
+- Nunca logue senha, CPF completo ou CNPJ completo.
+- `GlobalExceptionHandler` garante que stack traces não aparecem na resposta da API.
+
+## Secrets
+
+- Credenciais do banco em `application.properties` local ou variáveis de ambiente.
+- Nunca commite credenciais reais.
+
+## Clientes HTTP
+
+- `AuthorizationClient` e `NotifyClient` com timeouts explícitos.
+- Falha de rede no autorizador deve lançar exceção — nunca silenciosa.
+
+## Idempotência
+
+- `UNIQUE(idempotency_key)` no Postgres previne transferência duplicada.
+- Sem Redis (decisão D7).

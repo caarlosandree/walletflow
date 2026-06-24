@@ -1,0 +1,35 @@
+---
+description: Padrão de commit convencional em pt-BR para o Walletflow
+alwaysApply: false
+---
+
+# Walletflow — Commits
+
+## Formato
+
+```
+<tipo>: <descrição em pt-BR>
+```
+
+## Tipos
+
+`feat` · `fix` · `test` · `refactor` · `chore` · `docs` · `perf` · `ci`
+
+## Regras
+
+- Máximo 72 caracteres
+- Imperativo em pt-BR: `adiciona`, `corrige`, `remove`, `implementa`
+- Primeira letra minúscula
+- Sem ponto final
+- Sem `Co-authored-by`
+
+## Exemplos
+
+```
+feat: implementa módulo shared com Money e Document
+test: adiciona testes unitários de CPF e CNPJ
+feat: adiciona UserController e cadastro de usuário
+fix: corrige validação de DV do CNPJ
+chore: adiciona migration V1 da tabela event_publication
+test: valida publicação de TransferCompleted com Scenario
+```

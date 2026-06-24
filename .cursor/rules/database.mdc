@@ -1,0 +1,76 @@
+---
+description: Flyway migrations, JPA e PostgreSQL para o Walletflow
+alwaysApply: true
+globs: "src/main/resources/db/**,src/main/java/**/*Entity.java,src/main/java/**/*Repository.java"
+---
+
+# Walletflow — Banco de Dados
+
+## Perfis
+
+| Contexto | Banco |
+|---|---|
+| Dev / produção | PostgreSQL 16+ |
+| Testes | H2 em memória (sem Testcontainers) |
+
+## Flyway migrations
+
+- Local: `src/main/resources/db/migration/`
+- Nomenclatura: `V{n}__{descricao_snake_case}.sql`
+- **Nunca edite migration já aplicada** — crie uma nova
+
+### Migrations planejadas
+
+| Arquivo | Conteúdo |
+|---|---|
+| `V1__create_event_publication.sql` | Outbox do Spring Modulith |
+| `V2__create_users.sql` | Tabela `users` |
+| `V3__create_wallets.sql` | Tabela `wallets` com `version` |
+| `V4__create_transfers.sql` | Tabela `transfers` com `idempotency_key` UNIQUE |
+
+## Convenções SQL
+
+```sql
+-- snake_case, tabelas no plural
+-- Valores monetários: DECIMAL(19, 2) — nunca FLOAT
+-- Timestamps: TIMESTAMPTZ
+-- IDs: BIGSERIAL
+-- Constraints nomeadas: pk_, fk_, uk_, idx_, ck_
+
+CREATE TABLE wallets (
+    id         BIGSERIAL    PRIMARY KEY,
+    user_id    BIGINT       NOT NULL REFERENCES users(id),
+    balance    DECIMAL(19,2) NOT NULL DEFAULT 0,
+    version    BIGINT       NOT NULL DEFAULT 0,
+    created_at TIMESTAMPTZ  NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX idx_wallets_user_id ON wallets(user_id);
+```
+
+## JPA
+
+```java
+@Entity @Table(name = "wallets")
+class WalletEntity {
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) Long id;
+    @Version Long version;   // obrigatório — lock otimista
+    BigDecimal balance;
+    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "user_id") UserEntity user;
+}
+```
+
+- `@Version` obrigatório em `WalletEntity` — sem ele não há proteção de race condition.
+- `FetchType.LAZY` em todas as associações.
+- Entidades ficam em `.internal` — nunca no pacote público do módulo.
+- `spring.jpa.hibernate.ddl-auto=validate` — Flyway é a fonte da verdade do schema.
+
+## Outbox
+
+`V1__create_event_publication.sql` deve criar a tabela `event_publication` manualmente (Hibernate não gera com Flyway ativo).
+
+Configure no `application.properties`:
+```properties
+spring.modulith.events.republish-outstanding-events-on-restart=true
+spring.jpa.hibernate.ddl-auto=validate
+```

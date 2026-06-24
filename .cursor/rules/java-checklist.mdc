@@ -1,0 +1,40 @@
+---
+description: Checklist pré-conclusão de task do Walletflow
+alwaysApply: false
+---
+
+# Walletflow — Checklist pré-task
+
+## Build
+- [ ] `./gradlew build` passa sem erros
+- [ ] `ModularityTests.verify()` passa
+
+## Fronteiras de módulo
+- [ ] Nenhuma `*Entity` exposta para outro módulo
+- [ ] Nenhum acesso a `.internal` de outro módulo
+
+## Regras de negócio
+- [ ] `Money.debit()` rejeita saldo negativo
+- [ ] Lojista não consegue iniciar transferência
+- [ ] Autorizador consultado **fora** de `@Transactional`
+- [ ] `TransferCompleted` publicado **dentro** da TX
+
+## Banco e migrations
+- [ ] Nova migration `V{n}__{descricao}.sql` criada
+- [ ] Migration existente não foi editada
+- [ ] Colunas monetárias usam `DECIMAL`, não `FLOAT`
+
+## Testes
+- [ ] Teste escrito antes da implementação
+- [ ] `@ApplicationModuleTest` cobre o módulo da task
+- [ ] Nenhum `Thread.sleep` — usar `Scenario` para eventos
+
+## Código
+- [ ] DTOs são records imutáveis
+- [ ] Injeção por construtor
+- [ ] Nenhuma entidade retornada no controller
+- [ ] Nenhum segredo no código
+
+## Commit
+- [ ] `<tipo>: <descrição em pt-BR>` (máx 72 chars)
+- [ ] Sem `Co-authored-by`
