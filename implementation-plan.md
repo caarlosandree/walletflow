@@ -7,7 +7,7 @@ Implementar o monólito modular (4 módulos + shared) conforme `docs/design/arch
 
 ## Tasks
 
-- [ ] **T0 — Setup base**: o outbox **já está cabeado** via `spring-modulith-starter-jpa` (não adicionar nada para isso). Em `application.properties` setar `spring.threads.virtual.enabled=true`, `spring.modulith.events.republish-outstanding-events-on-restart=true`, datasource Postgres + perfil de teste H2. Criar migration Flyway `V1` da tabela `event_publication` (o DDL do registry não é gerado pelo Hibernate quando se usa Flyway). → **Verify:** `./gradlew build` compila; `contextLoads` passa; tabela `event_publication` existe após migrate.
+- [x] **T0 — Setup base**: o outbox **já está cabeado** via `spring-modulith-starter-jpa` (não adicionar nada para isso). Em `application.properties` setar `spring.threads.virtual.enabled=true`, `spring.modulith.events.republish-outstanding-events-on-restart=true`, datasource Postgres + perfil de teste H2. Criar migration Flyway `V1` da tabela `event_publication` (o DDL do registry não é gerado pelo Hibernate quando se usa Flyway). → **Verify:** `./gradlew build` compila; `contextLoads` passa; tabela `event_publication` existe após migrate.
 
 - [ ] **T1 — Módulo `shared`**: `Money` (record, BigDecimal escala 2, `debit`/`credit` rejeitam negativo) e `Document` (sealed `Cpf`|`Cnpj` com validação de DV no compact constructor + factory `of(raw)`). Pacote `@ApplicationModule(type = OPEN)`. → **Verify:** testes unitários de `Money` (saldo negativo lança) e `Document` (CPF/CNPJ válido/inválido) passam.
 
