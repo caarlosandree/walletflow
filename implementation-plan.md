@@ -11,7 +11,7 @@ Implementar o monólito modular (4 módulos + shared) conforme `docs/design/arch
 
 - [x] **T1 — Módulo `shared`**: `Money` (record, BigDecimal escala 2, `debit`/`credit` rejeitam negativo) e `Document` (sealed `Cpf`|`Cnpj` com validação de DV no compact constructor + factory `of(raw)`). Pacote `@ApplicationModule(type = OPEN)`. → **Verify:** testes unitários de `Money` (saldo negativo lança) e `Document` (CPF/CNPJ válido/inválido) passam.
 
-- [ ] **T2 — Módulo `user`**: `UserEntity` + `UserType` enum + `UserRepository` em `.internal`; `UserDirectory` (provided interface, lookup read-only) + `UserController` (cadastro) + DTOs record. Senha com `BCryptPasswordEncoder`. Unicidade de CPF/CNPJ e Email. Migration Flyway `V2__create_users.sql`. → **Verify:** `POST /users` cria usuário (201); duplicado retorna 409; `@ApplicationModuleTest` do `user` sobe isolado.
+- [x] **T2 — Módulo `user`**: `UserEntity` + `UserType` enum + `UserRepository` em `.internal`; `UserDirectory` (provided interface, lookup read-only) + `UserController` (cadastro) + DTOs record. Senha com `BCryptPasswordEncoder`. Unicidade de CPF/CNPJ e Email. Migration Flyway `V2__create_users.sql`. → **Verify:** `POST /users` cria usuário (201); duplicado retorna 409; `@ApplicationModuleTest` do `user` sobe isolado.
 
 - [ ] **T3 — Módulo `wallet`**: `WalletEntity` com `@Version` + `WalletRepository`; `WalletService` (provided interface) com `balanceOf()` e `transfer(from,to,amount)` debitando/creditando sob lock otimista. Retry em `OptimisticLockException`. Migration `V3__create_wallets.sql`. → **Verify:** teste de débito/crédito atômico; teste concorrente prova retry otimista sem saldo negativo.
 
