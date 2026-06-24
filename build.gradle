@@ -2,10 +2,21 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '4.1.0'
     id 'io.spring.dependency-management' version '1.1.7'
+    id 'pl.allegro.tech.build.axion-release' version '1.21.2'
+}
+
+// Versão derivada das tags git (SemVer). Não editar manualmente.
+// - commit em cima de uma tag vX.Y.Z  -> versão = X.Y.Z
+// - commits após a última tag          -> versão = X.Y.(Z+1)-SNAPSHOT
+// Lançar release:  ./gradlew release   (cria e faz push da próxima tag)
+scmVersion {
+    tag {
+        prefix = 'v'
+    }
 }
 
 group = 'br.com.api'
-version = '0.0.1-SNAPSHOT'
+version = scmVersion.version
 description = 'walletflow'
 
 java {
