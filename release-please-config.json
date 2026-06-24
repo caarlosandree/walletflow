@@ -1,0 +1,11 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "release-type": "simple",
+  "include-v-in-tag": true,
+  "bootstrap-sha": "1d4d69d16eeeef1b1a416dd68d2d54e3e4c90d5b",
+  "packages": {
+    ".": {
+      "package-name": "walletflow"
+    }
+  }
+}

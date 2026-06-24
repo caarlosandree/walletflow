@@ -8,7 +8,9 @@ plugins {
 // Versão derivada das tags git (SemVer). Não editar manualmente.
 // - commit em cima de uma tag vX.Y.Z  -> versão = X.Y.Z
 // - commits após a última tag          -> versão = X.Y.(Z+1)-SNAPSHOT
-// Lançar release:  ./gradlew release   (cria e faz push da próxima tag)
+// As tags/releases são criadas pela release-please (GitHub Actions) a partir
+// dos conventional commits; aqui o axion apenas LÊ a tag para versionar o build.
+// `./gradlew release` existe como fallback manual, mas evite usar no fluxo normal.
 scmVersion {
     tag {
         prefix = 'v'

@@ -1,0 +1,87 @@
+---
+description: Contratos REST, DTOs, exceções e tratamento de erros do Walletflow
+alwaysApply: true
+globs: "src/main/java/**/*Controller.java,src/main/java/**/dto/**"
+---
+
+# Walletflow — API REST
+
+## Endpoints
+
+| Método | Path | Status sucesso |
+|---|---|---|
+| POST | `/users` | 201 |
+| POST | `/transfer` | 200 |
+
+Sem versionamento de path — rotas diretas, escopo fixo.
+
+## Controllers — regra de ouro
+
+Controllers fazem apenas: validar entrada e delegar ao service.
+
+```java
+@RestController
+@RequestMapping("/users")
+@RequiredArgsConstructor
+public class UserController {
+    private final UserDirectory userDirectory;
+
+    @PostMapping
+    public ResponseEntity<UserResponse> create(@Valid @RequestBody CreateUserRequest request) {
+        var user = userDirectory.create(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(user);
+    }
+}
+```
+
+## DTOs como records
+
+```java
+public record CreateUserRequest(
+    @NotBlank String fullName,
+    @NotBlank String document,
+    @Email @NotBlank String email,
+    @NotBlank String password,
+    @NotNull UserType type
+) {}
+```
+
+- Nunca retorne `*Entity` na resposta.
+- Validações Jakarta ficam no record de request.
+- `@Valid` no parâmetro do controller.
+
+## Status HTTP
+
+| Situação | Status |
+|---|---|
+| Usuário criado | 201 Created |
+| Transferência executada | 200 OK |
+| Dado duplicado (CPF/email) | 409 Conflict |
+| Validação falhou | 400 Bad Request |
+| Lojista enviando / saldo insuficiente / autorizador recusou | 422 Unprocessable Entity |
+| Recurso não encontrado | 404 Not Found |
+
+## Tratamento de erros global
+
+```java
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+    @ExceptionHandler(MerchantCannotSendException.class)
+    public ResponseEntity<ErrorResponse> handleMerchant(MerchantCannotSendException ex) {
+        return ResponseEntity.status(422).body(new ErrorResponse("MERCHANT_CANNOT_SEND", ex.getMessage()));
+    }
+    // ... InsufficientBalanceException → 422, TransferDeniedException → 422
+}
+```
+
+## Clientes HTTP declarativos
+
+```java
+@HttpExchange
+public interface AuthorizationClient {
+    @GetExchange("https://util.devi.tools/api/v2/authorize")
+    AuthorizationResponse authorize();
+}
+```
+
+Configure via `HttpServiceProxyFactory` + `RestClient` com timeouts. Chame **fora** de `@Transactional`.

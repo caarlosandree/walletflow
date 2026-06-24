@@ -133,6 +133,25 @@ docker run --name walletflow-db -e POSTGRES_DB=walletflow -e POSTGRES_PASSWORD=p
 
 ---
 
+## 🏷️ Versionamento e releases
+
+Versão **automática** (SemVer), sem número hardcoded:
+
+- **[release-please](https://github.com/googleapis/release-please)** (GitHub Actions) lê os _conventional commits_ em `main`, mantém um **Release PR** aberto, gera o `CHANGELOG.md` e, no merge, cria a **tag `vX.Y.Z`** + a **GitHub Release**.
+- **[axion-release](https://github.com/allegro/axion-release-plugin)** deriva a `version` do Gradle a partir dessa tag (`./gradlew currentVersion`).
+
+Como os bumps acontecem:
+
+| Commit | Bump |
+|---|---|
+| `fix:` | PATCH (`0.1.0 → 0.1.1`) |
+| `feat:` | MINOR (`0.1.0 → 0.2.0`) |
+| `feat!:` ou `BREAKING CHANGE:` | MAJOR (`0.x → 1.0.0`) |
+
+> Fluxo: você só faz commits convencionais → a release-please corta o release → o axion versiona o build a partir da tag. **Não** rode `./gradlew release` manualmente no fluxo normal.
+
+---
+
 ## 🛣️ Caminho de evolução (documentado, não implementado)
 
 - Externalizar `TransferCompleted` para RabbitMQ/Kafka via `@Externalized` quando `notification` virar microsserviço — produtor inalterado.

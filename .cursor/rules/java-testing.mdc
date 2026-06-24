@@ -1,0 +1,80 @@
+---
+description: Estratégia de testes do Walletflow com JUnit 5 e Spring Modulith Test
+alwaysApply: true
+globs: "src/test/**/*.java"
+---
+
+# Walletflow — Testes
+
+## TDD obrigatório
+
+Cada task do `implementation-plan.md`: **teste primeiro, implementação depois**. Execute `./gradlew test` ao final de cada task.
+
+## Tipos de teste
+
+| Tipo | Ferramenta | Quando usar |
+|---|---|---|
+| Unitário | JUnit 5 + AssertJ | `Money`, `Document`, lógica pura |
+| Módulo isolado | `@ApplicationModuleTest` | Cada módulo sem os outros |
+| Arquitetural | `ApplicationModules.verify()` | Ciclos e acessos ilegais |
+| Evento async | `Scenario` | `transfer → TransferCompleted` |
+
+**Banco nos testes: H2 em memória** — sem Testcontainers (decisão D6).
+
+## Verificação arquitetural
+
+```java
+class ModularityTests {
+    static final ApplicationModules modules =
+        ApplicationModules.of(WalletflowApplication.class);
+
+    @Test void semCiclosNemAcessoIlegal() {
+        modules.verify();
+    }
+}
+```
+
+Deve passar antes de qualquer PR. Quebra o build em ciclo ou acesso a `.internal` de outro módulo.
+
+## Módulo isolado
+
+```java
+@ApplicationModuleTest
+class UserModuleTest {
+    @Autowired UserDirectory userDirectory;
+
+    @Test void deveRecusarEmailDuplicado() {
+        var request = new CreateUserRequest("Ana", "12345678901", "ana@test.com", "senha", COMMON);
+        userDirectory.create(request);
+        assertThatThrownBy(() -> userDirectory.create(request))
+            .isInstanceOf(DuplicateUserException.class);
+    }
+}
+```
+
+## Evento assíncrono com Scenario
+
+```java
+@ApplicationModuleTest
+class TransferEventTests {
+    @Test void publicaTransferCompletedAposSucesso(Scenario scenario) {
+        scenario.stimulate(() -> transferService.transfer(cmd))
+                .andWaitForEventOfType(TransferCompleted.class)
+                .toArriveAndVerify(evt -> assertThat(evt.payerId()).isEqualTo(payerId));
+    }
+}
+```
+
+Nunca use `Thread.sleep` em testes de evento — use `Scenario`.
+
+## Padrão AAA
+
+```java
+@Test void descricaoEmPortugues() {
+    // Arrange
+    // Act
+    // Assert
+}
+```
+
+Nomes em pt-BR descrevendo comportamento: `deveRejeitarLojistaPagador`, `devePublicarEventoAposTransferencia`.
