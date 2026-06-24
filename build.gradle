@@ -12,8 +12,10 @@ plugins {
 // dos conventional commits; aqui o axion apenas LÊ a tag para versionar o build.
 // `./gradlew release` existe como fallback manual, mas evite usar no fluxo normal.
 scmVersion {
+    // Formato de tag alinhado ao da release-please (componente + 'v'): walletflow-v1.0.0
     tag {
-        prefix = 'v'
+        prefix = 'walletflow-v'
+        versionSeparator = ''
     }
 }
 
