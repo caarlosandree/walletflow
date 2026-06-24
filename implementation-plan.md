@@ -19,12 +19,12 @@ Implementar o monólito modular (4 módulos + shared) conforme `docs/design/arch
 
 - [x] **T5 — Módulo `notification`**: `NotificationListener` (`@ApplicationModuleListener`) + `NotifyClient` (`@HttpExchange` POST) com `@Retryable`/backoff; tudo em `.internal`, sem API pública. → **Verify:** evento `TransferCompleted` dispara notificação após commit; falha do `notify` não reverte a transferência.
 
-- [ ] **T6 — Verificação arquitetural (LAST)**: `ModularityTests` com `modules.verify()` + `Documenter` (gera C4/PlantUML); `TransferEventTests` com `Scenario.andWaitForEventOfType(...)`. → **Verify:** `./gradlew test` passa; `verify()` não acusa ciclo/acesso ilegal; diagramas gerados em `build/`.
+- [x] **T6 — Verificação arquitetural (LAST)**: `ModularityTests` com `modules.verify()` + `Documenter` (gera C4/PlantUML); `TransferEventTests` com `Scenario.andWaitForEventOfType(...)`. → **Verify:** `./gradlew test` passa; `verify()` não acusa ciclo/acesso ilegal; diagramas gerados em `build/`.
 
 ## Done When
-- [ ] `./gradlew build` verde com todos os testes.
-- [ ] `modules.verify()` confirma 4 módulos + `shared` sem acoplamento ilegal/cíclico.
-- [ ] Fluxo ponta-a-ponta: cadastro → transferência autorizada move saldo atômico → notificação assíncrona dispara; recusa/saldo insuficiente faz rollback.
+- [x] `./gradlew build` verde com todos os testes.
+- [x] `modules.verify()` confirma 4 módulos + `shared` sem acoplamento ilegal/cíclico.
+- [x] Fluxo ponta-a-ponta: cadastro → transferência autorizada move saldo atômico → notificação assíncrona dispara; recusa/saldo insuficiente faz rollback.
 
 ## Notes
 - Cada task usa TDD: teste primeiro, depois implementação (rodar `./gradlew test` ao final de cada uma).
