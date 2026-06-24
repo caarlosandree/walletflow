@@ -17,7 +17,7 @@ Implementar o monólito modular (4 módulos + shared) conforme `docs/design/arch
 
 - [x] **T4 — Módulo `transfer`**: `TransferService` orquestra (1) validação com pattern matching (lojista não envia), (2) `AuthorizationClient` (`@HttpExchange` GET, fora da TX), (3) TX curta movendo dinheiro via `WalletService` + `publishEvent(TransferCompleted)`; `IdempotencyRecord` (constraint UNIQUE). `TransferController`. Migration `V4__create_transfers.sql`. → **Verify:** transferência feliz move saldo e grava evento no outbox; autorizador recusado → rollback (saldo intacto); idempotência rejeita débito duplicado.
 
-- [ ] **T5 — Módulo `notification`**: `NotificationListener` (`@ApplicationModuleListener`) + `NotifyClient` (`@HttpExchange` POST) com `@Retryable`/backoff; tudo em `.internal`, sem API pública. → **Verify:** evento `TransferCompleted` dispara notificação após commit; falha do `notify` não reverte a transferência.
+- [x] **T5 — Módulo `notification`**: `NotificationListener` (`@ApplicationModuleListener`) + `NotifyClient` (`@HttpExchange` POST) com `@Retryable`/backoff; tudo em `.internal`, sem API pública. → **Verify:** evento `TransferCompleted` dispara notificação após commit; falha do `notify` não reverte a transferência.
 
 - [ ] **T6 — Verificação arquitetural (LAST)**: `ModularityTests` com `modules.verify()` + `Documenter` (gera C4/PlantUML); `TransferEventTests` com `Scenario.andWaitForEventOfType(...)`. → **Verify:** `./gradlew test` passa; `verify()` não acusa ciclo/acesso ilegal; diagramas gerados em `build/`.
 
